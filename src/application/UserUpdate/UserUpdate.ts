@@ -1,3 +1,4 @@
+import { UserNotFoundError } from "../../domain/UserNotFoundError";
 import { User } from "../../domain/User";
 import { UserCreatedAt } from "../../domain/UserCreatedAt";
 import { UserEmail } from "../../domain/UserEmail";
@@ -15,6 +16,10 @@ export class UserUpdate {
             new UserEmail(email),
             new UserCreatedAt(createdAt)
         )
+
+        const userExists = await this.userRepository.findById(user.id);
+
+        if (!userExists) throw new UserNotFoundError("User not found");
 
         return this.userRepository.update(user);
     }

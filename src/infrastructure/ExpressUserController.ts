@@ -1,60 +1,82 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { ServiceContainer } from "../infrastructure/ServiceContainer";
 import { UserNotFoundError } from "../domain/UserNotFoundError";
 
 export class ExpressUserController {
-  async getAll(req: Request, res: Response) {
-    const users = await ServiceContainer.user.findAll.execute();
+  async getAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const users = await ServiceContainer.user.findAll.execute();
 
-    return res.json(users).status(200);
+      return res.json(users.map(user => user.mapToPrimitives())).status(200);
+    } catch (error) {
+      next(error);
+    }
   }
 
-  async getById(req: Request, res: Response) {
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await ServiceContainer.user.findById.execute(req.params.id);
 
-      return res.json(user).status(200);
+      return res.json(user.mapToPrimitives()).status(200);
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        return res.status(404).json({ message: error.message });
+      }
+      next(error);
+    }
+  } 
+
+  async create(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { createdAt, email, id, name } = req.body as {
+            id: string;
+            name: string;
+            email: string;
+            createdAt: string;
+        };
+        
+        await ServiceContainer.user.create.execute(
+            id,
+            name,
+            email,
+            new Date(createdAt)
+        );
+
+        return res.status(201).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async update(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { createdAt, email, id, name } = req.body as {
+            id: string;
+            name: string;
+            email: string;
+            createdAt: string;
+        };
+        await ServiceContainer.user.update.execute(id, name, email, new Date(createdAt));
+
+        return res.status(204).send();
     } catch (error) {
       if (error instanceof UserNotFoundError) {
         return res.status(404).json({ message: error.message });
       }
 
-      throw error;
+      next(error);
     }
   }
 
-  async create(req: Request, res: Response) {
-    const { createdAt, email, id, name } = req.body as {
-      id: string;
-      name: string;
-      email: string;
-      createdAt: string;
-    };
-    await ServiceContainer.user.create.execute(
-      id,
-      name,
-      email,
-      new Date(createdAt)
-    );
-
-    return res.status(201).send();
-  }
-
-  async update(req: Request, res: Response) {
-    const { createdAt, email, id, name } = req.body as {
-      id: string;
-      name: string;
-      email: string;
-      createdAt: string;
-    };
-    await ServiceContainer.user.update.execute(id, name, email, new Date(createdAt));
-
-    return res.status(204).send();
-  }
-
-  async delete(req: Request, res: Response) {
-    await ServiceContainer.user.delete.execute(req.params.id);
-
-    return res.status(204).send();
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+        await ServiceContainer.user.delete.execute(req.params.id);
+        return res.status(204).send();
+    } catch (error) {
+        if (error instanceof UserNotFoundError) {
+            return res.status(404).json({ message: error.message });
+        }
+        next(error);
+    }
   }
 }

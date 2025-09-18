@@ -5,6 +5,30 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
-    "@types/pg": "^8.15.5"
-  }
+    "@types/pg": "^8.15.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "name": "nodejs-hexagonal-architecture",
+  "version": "1.0.0",
+  "description": "Hexagonal architecture sample with TypeScript and node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "npx tsc ./src/main.ts --outDir ./dist/ --module commonjs --target es6",
+    "dev": "npx ts-node ./src/main.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jotaeles/nodejs-hexagonal-architecture.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Jotaeles/nodejs-hexagonal-architecture/issues"
+  },
+  "homepage": "https://github.com/Jotaeles/nodejs-hexagonal-architecture#readme"
 }

@@ -6,7 +6,7 @@ import { UserRepository } from "../../domain/UserRepository";
 export class UserFindById {
     constructor(private userRepository: UserRepository) {}
     
-    async execute(id: string): Promise<User | null> {
+    async execute(id: string): Promise<User> {
         const user = await this.userRepository.findById(new UserId(id));
 
         if (!user) throw new UserNotFoundError("User not found");
